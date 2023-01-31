@@ -2,8 +2,6 @@ const { Schema, model } = require('mongoose');
 // require mongoose model() and Schema()
 const mongoose = require('../config/connection');
 // Schema() for User model
-const { Thought } = require('./index');
-// require Thought model for reference
 
 const userSchema = new Schema(
   {
@@ -25,7 +23,7 @@ const userSchema = new Schema(
       ],
     },
     // reference attaches thoughts _id to thoughts model
-    thoughts: [{ type: Schema.Types.ObjectId, ref: 'Thoughts' }],
+    thoughts: [{ type: Schema.Types.ObjectId, ref: 'Thought' }],
     // friends is a self-reference to user model that attaches user's _id's to user model
     friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   },

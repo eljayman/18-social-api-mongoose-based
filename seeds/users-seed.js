@@ -5,4 +5,4 @@ const hans = new User({
   email: 'hans@test.com',
 });
 
-console.log(hans);
+

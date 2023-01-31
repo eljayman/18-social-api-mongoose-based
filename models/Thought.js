@@ -4,8 +4,6 @@ const mongoose = require('../config/connection');
 // Schema() for Reaction model
 const formatDate = require('../utils/helpers');
 // require formatDate helper function
-const { User, Reaction } = require('./index');
-// require other models for reference
 
 const thoughtSchema = new Schema({
   // toughtText is a string from 1 - 280 chars
@@ -31,7 +29,38 @@ const thoughtSchema = new Schema({
   reactions: [reactionSchema],
 });
 
-// compile the Thought schema into the User model
+const reactionSchema = new Schema({
+  // use Mongoose objectId for default
+  reactionId: {
+    type: mongoose.Types.ObjectId,
+    default: mongoose.Types.ObjectId,
+  },
+  // body of the response is a string with 280 character maximum
+  reactionBody: {
+    type: String,
+    required: true,
+    minLength: 1,
+    maxLength: 280,
+  },
+  // username is a required field
+  username: {
+    type: String,
+    required: true,
+  },
+  // timestamp has get function to format date
+  createdAt: {
+    type: Date,
+    default: Date.now(),
+    get: formatDate,
+  },
+});
+
+// virtual that returns the number of reactions
+thoughtSchema.virtual('reactionCount').get(function () {
+  return this.reactions.length;
+});
+
+// compile the Thought schema into the Thought model
 const Thought = mongoose.model('Thought', thoughtSchema);
 
 module.exports = Thought;
