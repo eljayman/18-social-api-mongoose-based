@@ -52,7 +52,7 @@ module.exports = {
           // deletes thoughts with the userId
           Thought.deleteMany({ _id: req.params.userId })
             .then((deletedCount) => {
-              return res.json(deletedCount);
+              res.json(deletedCount);
             })
             .catch((err) => res.status(500).json(err));
         }
