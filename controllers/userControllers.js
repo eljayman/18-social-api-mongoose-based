@@ -5,6 +5,7 @@ module.exports = {
   getAllUsers(req, res) {
     // gets all users and returns the objects
     User.find()
+      .select('-__v')
       .then((users) => res.json(users))
       .catch((err) => res.status(500).json(err));
   },
@@ -15,15 +16,16 @@ module.exports = {
       .catch((err) => res.status(500).json(err));
   },
   getSingleUser(req, res) {
-    const filter = req.params.userId;
-    // find a user by _id then returns the user object
-    User.findById(filter, (err, user) => {
-      err ? res.status(500).end() : res.json(user);
-      // .populate('Thoughts')
-      // .then((user) => {
-      //   res.json(user);
-      // })
-    });
+    const filter = { _id: req.params.userId };
+    User.findOne(filter)
+      .select('-__v')
+      .populate('thoughts', 'friends')
+      .then((user) =>
+        !user
+          ? res.status(404).json({ message: 'No user with that ID' })
+          : res.json(user)
+      )
+      .catch((err) => res.status(500).json(err));
   },
   updateUser(req, res) {
     const filter = { _id: req.params.userId };

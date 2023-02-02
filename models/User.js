@@ -28,7 +28,7 @@ const userSchema = new Schema(
     friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   },
   // options to enable the res.json for express
-  { toJSON: { virtuals: true } }
+  { toJSON: { virtuals: true }, id: false }
 );
 
 // virtual that returns the number of friends
