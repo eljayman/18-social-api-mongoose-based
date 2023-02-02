@@ -16,13 +16,11 @@ module.exports = {
   },
   getSingleUser(req, res) {
     // find a user by ObjectId then returns the user object
-    User.findOne({ _id: req.params.userId })
+    User.findById(req.params.userId)
       .populate('Thoughts')
-      .then((user) =>
-        !user
-          ? res.status(404).json({ message: 'No user with that ID' })
-          : res.json(user)
-      )
+      .then((user) => {
+        res.json(user);
+      })
       .catch((err) => res.status(500).json(err));
   },
   updateUser(req, res) {
