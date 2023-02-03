@@ -36,17 +36,13 @@ module.exports = {
     });
   },
   deleteUser(req, res) {
+    const filter = { _id: req.params.userId };
     // deletes a user by ObjectId
-    User.findByIdAndDelete(req.params.userId)
-      .then((response) => {
-        if (response.ok) {
-          // deletes thoughts with the userId
-          Thought.deleteMany({ _id: req.params.userId })
-            .then((deletedCount) => {
-              res.json(deletedCount);
-            })
-            .catch((err) => res.status(500).json(err));
-        }
+    User.findOneAndDelete(filter)
+      .then((deletedUser) => {
+        !deletedUser
+          ? res.status(500).json({ message: 'No user with this ID' })
+          : res.json(deletedUser);
       })
       .catch((err) => res.status(500).json(err));
   },
