@@ -1,4 +1,4 @@
-const { User, Thought } = require('../models');
+const { User } = require('../models');
 
 module.exports = {
   // functions that handle users api routes
@@ -16,6 +16,7 @@ module.exports = {
       .catch((err) => res.status(500).json(err));
   },
   getSingleUser(req, res) {
+    // gets a user and all associated thought _id's and friend _id's
     const filter = { _id: req.params.userId };
     User.findOne(filter)
       .select('-__v')
@@ -30,14 +31,14 @@ module.exports = {
   updateUser(req, res) {
     const filter = { _id: req.params.userId };
     const update = { username: req.body.username, email: req.body.email };
-    // finds a user by its ObjectId
+    // finds a user by its ObjectId and updates the username and email
     User.findOneAndUpdate(filter, update, { new: true }, (err, results) => {
       err ? res.status(500).end() : res.json(results);
     });
   },
   deleteUser(req, res) {
     const filter = { _id: req.params.userId };
-    // deletes a user by ObjectId
+    // deletes a user by ObjectId uses post middleware to remove all associated thoughts
     User.findOneAndDelete(filter)
       .then((deletedUser) => {
         !deletedUser
@@ -47,37 +48,21 @@ module.exports = {
       .catch((err) => res.status(500).json(err));
   },
   addFriend(req, res) {
-    // finds a user by its ObjectId
-    User.findOne({ _id: req.params.userId }).then((userData) => {
-      if (!userData) {
-        res.status(404).json({ message: 'No user with that ID' });
-      }
-      // spreads out the response object and friends array, adds a new friend to the friends array
-      const newFriend = { _id: req.params.friendId };
-      const updatedUser = {
-        ...userData,
-        friends: [...{}, newFriend],
-      };
-      // saves the new object with the same ObjectId
-      updatedUser
-        .save()
-        .then((updatedUserData) => res.json(updatedUserData))
-        .catch((err) => res.status(500).json(err));
+    const filter = { _id: req.params.userId };
+    const newFriend = { _id: req.params.friendId };
+    const update = { $addToSet: { friends: newFriend } };
+    // adds a user's _id to the friends array if it isn't already there
+    User.findOneAndUpdate(filter, update, { new: true }, (err, results) => {
+      err ? res.status(500).end() : res.json(results);
     });
   },
   deleteFriend(req, res) {
-    // finds a user by its ObjectId
-    User.findOne({ _id: req.params.userId }).then((userData) => {
-      if (!userData) {
-        res.status(404).json({ message: 'No user with that ID' });
-      }
-      // removes userId object within friends array
-      const updatedUser = userData.friends.pull(req.params.friendId);
-      // saves the new object with the same ObjectId
-      updatedUser
-        .save()
-        .then((updatedUserData) => res.json(updatedUserData))
-        .catch((err) => res.status(500).json(err));
+    const filter = { _id: req.params.userId };
+    const formerFriend = req.params.friendId;
+    const update = { $pull: { friends: formerFriend } };
+    // removes a user's _id from the friends array
+    User.findOneAndUpdate(filter, update, { new: true }, (err, results) => {
+      err ? res.status(500).end() : res.json(results);
     });
   },
 };
