@@ -6,6 +6,7 @@ module.exports = {
     // gets all users and returns the objects
     User.find()
       .select('-__v')
+      .populate('thoughts', 'friends')
       .then((users) => res.json(users))
       .catch((err) => res.status(500).json(err));
   },

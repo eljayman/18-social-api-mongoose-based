@@ -4,6 +4,7 @@ const mongoose = require('../config/connection');
 // Schema() for Reaction model
 // const { formatDate } = require('../utils/helpers');
 // require formatDate helper function
+const User = require('./User');
 
 const reactionSchema = new Schema({
   // use Mongoose objectId for default

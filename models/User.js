@@ -1,9 +1,8 @@
 const { Schema, model } = require('mongoose');
-// require mongoose model() and Schema()
 const mongoose = require('../config/connection');
 const Thought = require('./Thought');
-// Schema() for User model
 
+// Schema() for User model
 const userSchema = new Schema(
   {
     // username attribute
@@ -38,8 +37,8 @@ userSchema.virtual('friendCount').get(function () {
 });
 
 // middleware that fires on findOneAndDelete to remove all user's thoughts
-userSchema.post('findOneAndDelete', function () {
-  Thought.deleteMany({ username: this.username });
+userSchema.post('findOneAndDelete', function (user) {
+  Thought.deleteMany({ username: user.username }).exec();
 });
 
 // compile the User schema into the User model
