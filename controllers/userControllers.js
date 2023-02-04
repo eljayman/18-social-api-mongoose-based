@@ -41,12 +41,20 @@ module.exports = {
     const filter = { _id: req.params.userId };
     // deletes a user by ObjectId uses post middleware to remove all associated thoughts
     User.findOneAndDelete(filter)
-      .then((deletedUser) => {
-        !deletedUser
-          ? res.status(500).json({ message: 'No user with this ID' })
-          : res.json(deletedUser);
+      .then(({ _id, username }) => {
+        if (!_id) {
+          res.status(500).json({ message: 'No user with this ID' });
+        }
+        const update = { $pull: { friends: _id } };
+        User.updateMany({ friends: [_id] }, update, function (err, res) {
+          if (err) {
+            res.status(500).json({ message: 'Something went wrong' });
+          }
+          return;
+        });
+        res.json({ message: `Deleted ${username}.` });
       })
-      .catch((err) => res.status(500).json(err));
+      .catch(() => res.status(500).json({ message: 'No user with this ID' }));
   },
   addFriend(req, res) {
     const filter = { _id: req.params.userId };

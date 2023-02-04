@@ -1,4 +1,5 @@
 const { Thought, User } = require('../models');
+const { deleteUser } = require('./userControllers');
 
 module.exports = {
   // functions that handle thoughts api routes
@@ -68,37 +69,23 @@ module.exports = {
   },
   createReaction(req, res) {
     // find thought by _id
-    Thought.findOne({ _id: req.params.thoughtId })
-      .then((thoughtData) => {
-        if (!thoughtData) {
-          res.status(404).json({ message: 'No thought with that ID' });
-        }
-        // add reaction subdocument to thought document
-        const updatedThoughtData = { ...thoughtData };
-        updatedThoughtData.reactions.push({
-          reactionBody: req.body.reactionBody,
-          username: req.body.username,
-        });
-        updatedThoughtData.save().then((thought) => res.json(thought));
-      })
-      .catch((err) => res.status(500).json(err));
+    const filter = { _id: req.params.thoughtId };
+    const newReaction = {
+      reactionBody: req.body.reactionBody,
+      username: req.body.username,
+    };
+    const update = { $addToSet: { reactions: newReaction } };
+    Thought.findOneAndUpdate(filter, update, { new: true }, (err, results) => {
+      err ? res.status(500).end() : res.json(results);
+    });
   },
   deleteReaction(req, res) {
     // find thought by _id
-    Thought.findOne({ _id: req.params.thoughtId })
-      .then((thoughtData) => {
-        if (!thoughtData) {
-          res.status(404).json({ message: 'No thought with that ID' });
-        }
-        // remove reaction by _id
-        const updatedThought = thoughtData.reactions.pull(
-          req.params.reactionId
-        );
-        updatedThought
-          .save()
-          .then((thought) => res.json(thought))
-          .catch((err) => res.status(500).json(err));
-      })
-      .catch((err) => res.status(500).json(err));
+    const filter = { _id: req.params.thoughtId };
+    const reaction = { _id: req.params.reactionId };
+    const update = { $pull: { reactions: reaction } };
+    Thought.findOneAndUpdate(filter, update, { new: true }, (err, results) => {
+      err ? res.status(500).end() : res.json(results);
+    });
   },
 };
