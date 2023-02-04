@@ -45,6 +45,7 @@ module.exports = {
         if (!_id) {
           res.status(500).json({ message: 'No user with this ID' });
         }
+        // removes user's _id from other user's friends array
         const update = { $pull: { friends: _id } };
         User.updateMany({ friends: [_id] }, update, function (err, res) {
           if (err) {

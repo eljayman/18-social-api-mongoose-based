@@ -1,6 +1,6 @@
-// import all models
+// import models
 const User = require('./User');
 const Thought = require('./Thought');
 
-//export all models
+//export models
 module.exports = { User, Thought };
