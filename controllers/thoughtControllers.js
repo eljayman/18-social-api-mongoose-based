@@ -68,11 +68,7 @@ module.exports = {
     // creates reaction to thought and nests the document inside reactions array
     // needs debugging, creates reaction but doesn't use req.body
     const filter = { _id: req.params.thoughtId };
-    const newReaction = {
-      reactionBody: req.body.reactionBody,
-      username: req.body.username,
-    };
-    const update = { $addToSet: { reactions: newReaction } };
+    const update = { $addToSet: { reactions: req.body } };
     Thought.findOneAndUpdate(filter, update, { new: true }, (err, results) => {
       err ? res.status(500).end() : res.json(results);
     });
@@ -82,8 +78,13 @@ module.exports = {
     const filter = { _id: req.params.thoughtId };
     const reaction = { _id: req.params.reactionId };
     const update = { $pull: { reactions: reaction } };
-    Thought.findOneAndUpdate(filter, update, { new: true }, (err, results) => {
-      err ? res.status(500).end() : res.json(results);
-    });
+    Thought.findOneAndUpdate(
+      filter,
+      update,
+      { runValidators: true, new: true },
+      (err, results) => {
+        err ? res.status(500).end() : res.json(results);
+      }
+    );
   },
 };
