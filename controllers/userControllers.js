@@ -6,7 +6,6 @@ module.exports = {
     // gets all users and returns the objects
     User.find()
       .select('-__v')
-      .populate('thoughts', 'friends')
       .then((users) => res.json(users))
       .catch((err) => res.status(500).json(err));
   },
@@ -20,8 +19,9 @@ module.exports = {
     // gets a user and all associated thought _id's and friend _id's
     const filter = { _id: req.params.userId };
     User.findOne(filter)
+      .populate('thoughts')
+      .populate('friends')
       .select('-__v')
-      .populate('thoughts', 'friends')
       .then((user) =>
         !user
           ? res.status(404).json({ message: 'No user with that ID' })
@@ -45,9 +45,10 @@ module.exports = {
         if (!_id) {
           res.status(500).json({ message: 'No user with this ID' });
         }
+        const id = _id.toHexString();
         // removes user's _id from other user's friends array
-        const update = { $pull: { friends: _id } };
-        User.updateMany({ friends: [_id] }, update, function (err, res) {
+        const update = { $pull: { friends: id } };
+        User.updateMany({ friends: id }, update, (err, res) => {
           if (err) {
             res.status(500).json({ message: 'Something went wrong' });
           }

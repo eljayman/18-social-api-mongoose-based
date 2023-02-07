@@ -11,27 +11,25 @@ module.exports = {
   },
   createThought(req, res) {
     // creates a new thought then returns the new document
-    Thought.create(req.body).then((newThought) => {
-      const user = newThought.username;
-      const thoughtId = newThought._id;
-      // updates the user to include thought _id in thoughts array
-      User.findOneAndUpdate(
-        { username: user },
-        { $addToSet: { thoughts: thoughtId } },
-        { new: true }
-      )
-        .then((data) => {
+    Thought.create(req.body)
+      .then(({ _id, username }) => {
+        const id = _id.toHexString();
+        // updates the user to include thought _id in thoughts array
+        User.findOneAndUpdate(
+          { username },
+          { $addToSet: { thoughts: id } },
+          { new: true }
+        ).then((data) => {
           !data
             ? res.status(500).json({ message: 'Something went wrong' })
             : res.json(data);
-        })
-        .catch((err) => res.status(500).json(err));
-    });
+        });
+      })
+      .catch((err) => res.status(500).json(err));
   },
   getSingleThought(req, res) {
     // find a thought by ObjectId then returns the document
     Thought.findOne({ _id: req.params.thoughtId })
-      .populate('reactions')
       .select('-__v')
       .then((thought) =>
         !thought

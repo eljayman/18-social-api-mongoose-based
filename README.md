@@ -22,7 +22,7 @@ This is the back-end for a social network website that uses [MongoDB](https://ww
 
 ## Link to Video
 
-[Video](remember to update this URL!)
+[Video](https://watch.screencastify.com/v/EBSxPnbfUJ3UjzwT5lEl))
 
 ## Installation
 
